@@ -6,6 +6,7 @@ import (
 )
 
 //Config holds the configuration for the application
+//Implements oauth2.TokenSource
 type Config struct {
 	AccessToken string `json:"access_token"`
 }
@@ -24,6 +25,14 @@ func NewConfig(path string) (Config, error) {
 	}
 
 	return config, err
+}
+
+//Token returns a new oauth2.token object.
+//Required for config to implement oauth2.TokenSource
+func (config Config) Token() (*oauth2.Token, error) {
+	return &oauth2.Token{
+		AccessToken: config.AccessToken,
+	}, nil
 }
 
 func main() {
