@@ -16,7 +16,8 @@ const configPath = "./config.json"
 //Config holds the configuration for the application
 //Implements oauth2.TokenSource
 type Config struct {
-	AccessToken string `json:"access_token"`
+	AccessToken string    `json:"access_token"`
+	DNSConfig   DNSConfig `json:"dns_config"`
 }
 
 //DNSConfig represents the config of the DNS records that will be updated.
