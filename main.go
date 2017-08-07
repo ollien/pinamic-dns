@@ -1,9 +1,17 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"log"
 	"os"
+
+	"github.com/digitalocean/godo"
+
+	"golang.org/x/oauth2"
 )
+
+const configPath = "./config.json"
 
 //Config holds the configuration for the application
 //Implements oauth2.TokenSource
@@ -36,5 +44,11 @@ func (config Config) Token() (*oauth2.Token, error) {
 }
 
 func main() {
+	config, err := NewConfig(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	oauthClient := oauth2.NewClient(context.Background(), config)
+	digitalOceanClient := godo.NewClient(oauthClient)
 }
