@@ -7,7 +7,7 @@ import (
 
 //Config holds the configuration for the application
 type Config struct {
-	Token string
+	AccessToken string
 }
 
 //NewConfig reads the file located at path and returns a new Config
