@@ -22,9 +22,11 @@ type Config struct {
 
 //DNSConfig represents the config of the DNS records that will be updated.
 //This basically just uses the properties from godo.DomainRecordEditRequest, however, as this is intended for A records, we omit the Priority, Port, and Weight properties. We also don't need to set the "data" property, as this is something that will be provided by this script.
-//Note that the Domain property is custom and not aprt of DomainRecordEditRequest
+//Note that the Domain and ID properties are custom and not aprt of DomainRecordEditRequest
+//ID is a pointer due to the fact that we need to be able to detect if the id is zero or was just unset.
 type DNSConfig struct {
 	Domain string `json:"domain"`
+	ID     *int   `json:"id,omitempty"`
 	Name   string `json:"name"`
 	TTL    int    `json:"ttl"`
 }
