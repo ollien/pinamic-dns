@@ -19,6 +19,14 @@ type Config struct {
 	AccessToken string `json:"access_token"`
 }
 
+//DNSConfig represents the config of the DNS records that will be updated.
+//This basically just uses the properties from godo.DomainRecordEditRequest, however, as this is intended for A records, we omit the Priority, Port, and Weight properties.
+//We also don't need to set the "data" property, as this is something that will be provided by this script.
+type DNSConfig struct {
+	Name string `json:"name"`
+	TTL  int    `json:"ttl"`
+}
+
 //NewConfig reads the file located at path and returns a new Config
 func NewConfig(path string) (Config, error) {
 	configReader, err := os.Open(path)
