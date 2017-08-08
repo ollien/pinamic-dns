@@ -21,6 +21,7 @@ const configPath = "./config.json"
 type Config struct {
 	AccessToken string    `json:"access_token"`
 	DNSConfig   DNSConfig `json:"dns_config"`
+	filepath    string
 }
 
 //DNSConfig represents the config of the DNS records that will be updated.
@@ -34,9 +35,9 @@ type DNSConfig struct {
 	TTL    int    `json:"ttl"`
 }
 
-//NewConfig reads the file located at path and returns a new Config
-func NewConfig(path string) (Config, error) {
-	configReader, err := os.Open(path)
+//NewConfig reads the file located at filepath and returns a new Config
+func NewConfig(filepath string) (Config, error) {
+	configReader, err := os.Open(filepath)
 
 	if err != nil {
 		return Config{}, err
@@ -45,8 +46,11 @@ func NewConfig(path string) (Config, error) {
 	defer configReader.Close()
 
 	configDecoder := json.NewDecoder(configReader)
-	config := Config{}
+	config := Config{
+		filepath: filepath,
+	}
 	err = configDecoder.Decode(&config)
+
 	if err != nil {
 		return Config{}, err
 	}
@@ -54,9 +58,9 @@ func NewConfig(path string) (Config, error) {
 	return config, err
 }
 
-//Write writes the config to the file specified by path
-func (config Config) Write(path string) error {
-	configWriter, err := os.Open(path)
+//Write writes the config to the file specified by config.filepath
+func (config Config) Write() error {
+	configWriter, err := os.Open(config.filepath)
 
 	if err != nil {
 		return err
