@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/digitalocean/godo"
 
@@ -58,13 +60,21 @@ func (config Config) Token() (*oauth2.Token, error) {
 
 func getIP() (string, error) {
 	res, err := http.Get("http://checkip.amazonaws.com/")
-	var resData []byte
-	_, err = res.Body.Read(resData)
+
 	if err != nil {
 		return "", err
 	}
 
-	return string(resData), nil
+	resData, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		return "", err
+	}
+
+	res.Body.Close()
+	ip := strings.Trim(string(resData), "\n")
+
+	return ip, nil
 }
 
 //CreateOrUpdateRecord adds a record to Digit
