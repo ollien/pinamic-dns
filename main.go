@@ -97,7 +97,7 @@ func getIP() (string, error) {
 }
 
 //CreateOrUpdateRecord adds a record to Digit
-func CreateOrUpdateRecord(config *DNSConfig, domainService godo.DomainsService) error {
+func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) error {
 	ip, err := getIP()
 
 	if err != nil {
@@ -106,23 +106,23 @@ func CreateOrUpdateRecord(config *DNSConfig, domainService godo.DomainsService) 
 
 	dnsEditRequest := godo.DomainRecordEditRequest{
 		Type: "A",
-		Name: config.Name,
+		Name: config.DNSConfig.Name,
 		Data: ip,
-		TTL:  config.TTL,
+		TTL:  config.DNSConfig.TTL,
 	}
 	requestContext := context.Background()
-	if config.ID == nil {
-		record, _, err := domainService.CreateRecord(requestContext, config.Domain, &dnsEditRequest)
+	if config.DNSConfig.ID == nil {
+		record, _, err := domainService.CreateRecord(requestContext, config.DNSConfig.Domain, &dnsEditRequest)
 		if err != nil {
 			return err
 		}
-		config.ID = &record.ID
+		config.DNSConfig.ID = &record.ID
 	} else {
-		record, _, err := domainService.Record(requestContext, config.Domain, *config.ID)
+		record, _, err := domainService.Record(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID)
 		if err != nil {
 			return err
 		} else if record.Data != ip {
-			_, _, err := domainService.EditRecord(requestContext, config.Domain, *config.ID, &dnsEditRequest)
+			_, _, err := domainService.EditRecord(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID, &dnsEditRequest)
 			if err != nil {
 				return err
 			}
@@ -141,7 +141,7 @@ func main() {
 
 	oauthClient := oauth2.NewClient(context.Background(), config)
 	digitalOceanClient := godo.NewClient(oauthClient)
-	err = CreateOrUpdateRecord(&config.DNSConfig, digitalOceanClient.Domains)
+	err = CreateOrUpdateRecord(&config, digitalOceanClient.Domains)
 	//TODO: write changes to config.DNSConfig to disk
 
 	if err != nil {
