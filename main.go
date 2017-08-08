@@ -78,14 +78,13 @@ func getIP() (string, error) {
 }
 
 //CreateOrUpdateRecord adds a record to Digit
-func CreateOrUpdateRecord(config *DNSConfig) error {
+func CreateOrUpdateRecord(config *DNSConfig, domainService godo.DomainsService) error {
 	ip, err := getIP()
 
 	if err != nil {
 		return err
 	}
 
-	dnsOp := godo.DomainsServiceOp{}
 	dnsEditRequest := godo.DomainRecordEditRequest{
 		Type: "A",
 		Name: config.Name,
@@ -94,17 +93,17 @@ func CreateOrUpdateRecord(config *DNSConfig) error {
 	}
 	requestContext := context.Background()
 	if config.ID == nil {
-		record, _, err := dnsOp.CreateRecord(requestContext, config.Domain, &dnsEditRequest)
+		record, _, err := domainService.CreateRecord(requestContext, config.Domain, &dnsEditRequest)
 		if err != nil {
 			return err
 		}
 		*config.ID = record.ID
 	} else {
-		record, _, err := dnsOp.Record(requestContext, config.Domain, *config.ID)
+		record, _, err := domainService.Record(requestContext, config.Domain, *config.ID)
 		if err != nil {
 			return err
 		} else if record.Data != ip {
-			_, _, err := dnsOp.EditRecord(requestContext, config.Domain, *config.ID, &dnsEditRequest)
+			_, _, err := domainService.EditRecord(requestContext, config.Domain, *config.ID, &dnsEditRequest)
 			if err != nil {
 				return err
 			}
