@@ -97,7 +97,7 @@ func CreateOrUpdateRecord(config *DNSConfig, domainService godo.DomainsService) 
 		if err != nil {
 			return err
 		}
-		*config.ID = record.ID
+		config.ID = &record.ID
 	} else {
 		record, _, err := domainService.Record(requestContext, config.Domain, *config.ID)
 		if err != nil {
