@@ -121,4 +121,10 @@ func main() {
 
 	oauthClient := oauth2.NewClient(context.Background(), config)
 	digitalOceanClient := godo.NewClient(oauthClient)
+	err = CreateOrUpdateRecord(&config.DNSConfig, digitalOceanClient.Domains)
+	//TODO: write changes to config.DNSConfig to disk
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
