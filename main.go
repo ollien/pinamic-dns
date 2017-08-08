@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/digitalocean/godo"
@@ -53,6 +54,54 @@ func (config Config) Token() (*oauth2.Token, error) {
 	return &oauth2.Token{
 		AccessToken: config.AccessToken,
 	}, nil
+}
+
+func getIP() (string, error) {
+	res, err := http.Get("http://checkip.amazonaws.com/")
+	var resData []byte
+	_, err = res.Body.Read(resData)
+	if err != nil {
+		return "", err
+	}
+
+	return string(resData), nil
+}
+
+//CreateOrUpdateRecord adds a record to Digit
+func CreateOrUpdateRecord(config *DNSConfig) error {
+	ip, err := getIP()
+
+	if err != nil {
+		return err
+	}
+
+	dnsOp = dogo.DomainsServiceOp{}
+	dnsEditRequest := godo.DomainRecordEditRequest{
+		Type: "A",
+		Name: config.Name,
+		Data: ip,
+		TTL:  config.TTL,
+	}
+	requestContext = context.Background()
+	if config.ID == nil {
+		record, _, err := dnsOp.CreateRecord(requestContext, config.Domain, dnsEditRequest)
+		if err != nil {
+			return err
+		}
+		*config.ID = record.ID
+	} else {
+		record, _, err := dnsOp.Record(requestContext, config.Domain, domain.id)
+		if err != nil {
+			return err
+		} else if record.Data != ip {
+			record, _, err := dnsOp.EditRecord(requestContext, config.Domain, config.ID, dnsEditRequest)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func main() {
