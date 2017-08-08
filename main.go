@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/digitalocean/godo"
+	"github.com/logrusorgru/aurora"
 
 	"golang.org/x/oauth2"
 )
@@ -126,6 +128,9 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) err
 		if err != nil {
 			return err
 		}
+		fmt.Printf("Succuessfuly set the '%s' record to point to '%s'",
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip)))
 	} else {
 		record, _, err := domainService.Record(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID)
 		if err != nil {
@@ -135,6 +140,14 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) err
 			if err != nil {
 				return err
 			}
+
+			fmt.Printf("Succuessfuly updated the '%s' record to point to '%s'",
+				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+				aurora.Cyan(aurora.Bold(ip)))
+		} else {
+			fmt.Printf("The '%s' record already points to '%s'",
+				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+				aurora.Cyan(aurora.Bold(ip)))
 		}
 	}
 
