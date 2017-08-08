@@ -75,26 +75,26 @@ func CreateOrUpdateRecord(config *DNSConfig) error {
 		return err
 	}
 
-	dnsOp = dogo.DomainsServiceOp{}
+	dnsOp := godo.DomainsServiceOp{}
 	dnsEditRequest := godo.DomainRecordEditRequest{
 		Type: "A",
 		Name: config.Name,
 		Data: ip,
 		TTL:  config.TTL,
 	}
-	requestContext = context.Background()
+	requestContext := context.Background()
 	if config.ID == nil {
-		record, _, err := dnsOp.CreateRecord(requestContext, config.Domain, dnsEditRequest)
+		record, _, err := dnsOp.CreateRecord(requestContext, config.Domain, &dnsEditRequest)
 		if err != nil {
 			return err
 		}
 		*config.ID = record.ID
 	} else {
-		record, _, err := dnsOp.Record(requestContext, config.Domain, domain.id)
+		record, _, err := dnsOp.Record(requestContext, config.Domain, *config.ID)
 		if err != nil {
 			return err
 		} else if record.Data != ip {
-			record, _, err := dnsOp.EditRecord(requestContext, config.Domain, config.ID, dnsEditRequest)
+			_, _, err := dnsOp.EditRecord(requestContext, config.Domain, *config.ID, &dnsEditRequest)
 			if err != nil {
 				return err
 			}
