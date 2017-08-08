@@ -37,9 +37,13 @@ type DNSConfig struct {
 //NewConfig reads the file located at path and returns a new Config
 func NewConfig(path string) (Config, error) {
 	configReader, err := os.Open(path)
+
 	if err != nil {
 		return Config{}, err
 	}
+
+	defer configReader.Close()
+
 	configDecoder := json.NewDecoder(configReader)
 	config := Config{}
 	err = configDecoder.Decode(&config)
