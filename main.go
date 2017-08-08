@@ -54,6 +54,21 @@ func NewConfig(path string) (Config, error) {
 	return config, err
 }
 
+//Write writes the config to the file specified by path
+func (config Config) Write(path string) error {
+	configWriter, err := os.Open(path)
+
+	if err != nil {
+		return err
+	}
+
+	defer configWriter.Close()
+	configEncoder := json.NewEncoder(configWriter)
+	err = configEncoder.Encode(config)
+
+	return err
+}
+
 //Token returns a new oauth2.token object.
 //Required for config to implement oauth2.TokenSource
 func (config Config) Token() (*oauth2.Token, error) {
