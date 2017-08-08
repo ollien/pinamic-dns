@@ -115,6 +115,7 @@ func CreateOrUpdateRecord(config *DNSConfig, domainService godo.DomainsService) 
 
 func main() {
 	config, err := NewConfig(configPath)
+
 	if err != nil {
 		log.Fatal(err)
 	}
