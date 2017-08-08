@@ -69,13 +69,13 @@ func getIP() (string, error) {
 		return "", err
 	}
 
+	defer res.Body.Close()
 	resData, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
 		return "", err
 	}
 
-	res.Body.Close()
 	ip := strings.Trim(string(resData), "\n")
 
 	return ip, nil
