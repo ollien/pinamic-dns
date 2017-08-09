@@ -112,13 +112,8 @@ func makeEditRequest(config Config, ip string) (godo.DomainRecordEditRequest, er
 }
 
 //CreateRecord creates a record with DigitalOcean.
-func CreateRecord(context context.Context, config *Config, domainService godo.DomainsService) (*godo.DomainRecord, *godo.Response, error) {
-	editRequest, err := makeEditRequest(*config)
-	if err != nil {
-		return new(godo.DomainRecord), new(godo.Response), err
-	}
-
-	record, res, err := domainService.CreateRecord(context, config.DNSConfig.Domain, &editRequest)
+func CreateRecord(context context.Context, config *Config, editRequest *godo.DomainRecordEditRequest, domainService godo.DomainsService) (*godo.DomainRecord, *godo.Response, error) {
+	record, res, err := domainService.CreateRecord(context, config.DNSConfig.Domain, editRequest)
 	if err != nil {
 		return new(godo.DomainRecord), new(godo.Response), err
 	}
