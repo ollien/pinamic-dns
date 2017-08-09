@@ -102,12 +102,7 @@ func getIP() (string, error) {
 	return ip, nil
 }
 
-func makeEditRequest(config Config) (godo.DomainRecordEditRequest, error) {
-	ip, err := getIP()
-	if err != nil {
-		return godo.DomainRecordEditRequest{}, err
-	}
-
+func makeEditRequest(config Config, ip string) (godo.DomainRecordEditRequest, error) {
 	return godo.DomainRecordEditRequest{
 		Type: "A",
 		Name: config.DNSConfig.Name,
