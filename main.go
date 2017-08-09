@@ -118,7 +118,7 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) err
 				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 				aurora.Cyan(aurora.Bold(ip)))
 		} else {
-			fmt.Printf(aurora.Sprintf(aurora.Red("There was an unknown error setting the '%s' record to '%s'"),
+			log.Fatalf(aurora.Sprintf(aurora.Red("There was an unknown error setting the '%s' record to '%s'"),
 				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 				aurora.Cyan(aurora.Bold(ip))))
 		}
