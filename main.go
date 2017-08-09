@@ -102,6 +102,20 @@ func getIP() (string, error) {
 	return ip, nil
 }
 
+func makeEditRequest(config Config) (godo.DomainRecordEditRequest, error) {
+	ip, err := getIP()
+	if err != nil {
+		return godo.DomainRecordEditRequest{}, err
+	}
+
+	return godo.DomainRecordEditRequest{
+		Type: "A",
+		Name: config.DNSConfig.Name,
+		Data: ip,
+		TTL:  config.DNSConfig.TTL,
+	}, nil
+}
+
 //CreateOrUpdateRecord adds a record to Digit
 func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) error {
 	ip, err := getIP()
