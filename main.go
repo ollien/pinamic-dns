@@ -69,7 +69,7 @@ func UpdateRecord(context context.Context, config *Config, editRequest *godo.Dom
 	return domainService.EditRecord(context, config.DNSConfig.Domain, *config.DNSConfig.ID, editRequest)
 }
 
-//CreateOrUpdateRecord adds a record to Digit
+//CreateOrUpdateRecord adds a record to DigitalOcean if it does not already exist, and updates it otherwise.
 func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) error {
 	ip, err := getIP()
 	if err != nil {
