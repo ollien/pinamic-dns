@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -88,7 +87,7 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) err
 			return err
 		}
 
-		fmt.Printf("Succuessfuly set the '%s' record to point to '%s'",
+		log.Printf("Succuessfuly set the '%s' record to point to '%s'",
 			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 			aurora.Cyan(aurora.Bold(ip)))
 	} else {
@@ -99,7 +98,7 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) err
 				return err
 			}
 
-			fmt.Printf("Succuessfuly set the '%s' record to point to '%s'",
+			log.Printf("Succuessfuly set the '%s' record to point to '%s'",
 				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 				aurora.Cyan(aurora.Bold(ip)))
 		} else if err != nil {
@@ -110,11 +109,11 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) err
 				return err
 			}
 
-			fmt.Printf("Succuessfuly updated the '%s' record to point to '%s'",
+			log.Printf("Succuessfuly updated the '%s' record to point to '%s'",
 				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 				aurora.Cyan(aurora.Bold(ip)))
 		} else if res.StatusCode == 200 {
-			fmt.Printf("The '%s' record already points to '%s'",
+			log.Printf("The '%s' record already points to '%s'",
 				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 				aurora.Cyan(aurora.Bold(ip)))
 		} else {
