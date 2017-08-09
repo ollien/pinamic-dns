@@ -136,8 +136,8 @@ func CreateRecord(context context.Context, config *Config, domainService godo.Do
 }
 
 //UpdateRecord updates an existing record with DigitalOcean
-func UpdateRecord(context context.Context, config Config, domainService godo.DomainsService) (*godo.DomainRecord, *godo.Response, error) {
-	editRequest, err := makeEditRequest(config)
+func UpdateRecord(context context.Context, config *Config, domainService godo.DomainsService) (*godo.DomainRecord, *godo.Response, error) {
+	editRequest, err := makeEditRequest(*config)
 	if err != nil {
 		return new(godo.DomainRecord), new(godo.Response), err
 	}
