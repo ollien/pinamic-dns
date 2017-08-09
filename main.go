@@ -117,13 +117,22 @@ func makeEditRequest(config Config) (godo.DomainRecordEditRequest, error) {
 }
 
 //CreateRecord creates a record with DigitalOcean.
-func CreateRecord(context context.Context, config Config, domainService godo.DomainsService) (*godo.DomainRecord, *godo.Response, error) {
-	editRequest, err := makeEditRequest(config)
+func CreateRecord(context context.Context, config *Config, domainService godo.DomainsService) (*godo.DomainRecord, *godo.Response, error) {
+	editRequest, err := makeEditRequest(*config)
 	if err != nil {
 		return new(godo.DomainRecord), new(godo.Response), err
 	}
 
-	return domainService.CreateRecord(context, config.DNSConfig.Domain, &editRequest)
+	record, res, err := domainService.CreateRecord(context, config.DNSConfig.Domain, &editRequest)
+	if err != nil {
+		return new(godo.DomainRecord), new(godo.Response), err
+	}
+
+	config.DNSConfig.ID = &record.ID
+	err = config.Write()
+
+	//Even if there is an error writing the file, it's probably best we still return the existing record and response.
+	return record, res, err
 }
 
 //UpdateRecord updates an existing record with DigitalOcean
