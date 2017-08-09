@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -15,7 +16,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const configPath = "./config.json"
+const defaultConfigPath = "./config.json"
 
 func getIP() (string, error) {
 	res, err := http.Get("http://checkip.amazonaws.com/")
@@ -131,8 +132,10 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) err
 }
 
 func main() {
-	config, err := NewConfig(configPath)
+	configPath := flag.String("-config", defaultConfigPath, "Set a path to a config.json")
+	flag.Parse()
 
+	config, err := NewConfig(*configPath)
 	if err != nil {
 		log.Fatal(err)
 	}
