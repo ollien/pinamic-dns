@@ -132,6 +132,10 @@ func UpdateRecord(context context.Context, config Config, domainService godo.Dom
 	if err != nil {
 		return new(godo.DomainRecord), new(godo.Response), err
 	}
+	if config.DNSConfig.ID == nil {
+		err = errors.New("config.DNSConfig.ID cannot be nil")
+		return new(godo.DomainRecord), new(godo.Response), err
+	}
 
 	return domainService.EditRecord(context, config.DNSConfig.Domain, *config.DNSConfig.ID, &editRequest)
 }
