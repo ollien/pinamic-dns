@@ -63,7 +63,7 @@ func NewConfig(filepath string) (Config, error) {
 
 //Write writes the config to the file specified by config.filepath
 func (config Config) Write() error {
-	configWriter, err := os.OpenFile(config.filepath, os.O_WRONLY, 0666)
+	configWriter, err := os.OpenFile(config.filepath, os.O_WRONLY|os.O_TRUNC, 0666)
 
 	if err != nil {
 		return err
