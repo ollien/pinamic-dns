@@ -133,44 +133,46 @@ func UpdateRecord(context context.Context, config *Config, editRequest *godo.Dom
 		return new(godo.DomainRecord), new(godo.Response), err
 	}
 
-	return domainService.EditRecord(context, config.DNSConfig.Domain, *config.DNSConfig.ID, &editRequest)
+	return domainService.EditRecord(context, config.DNSConfig.Domain, *config.DNSConfig.ID, editRequest)
 }
 
 //CreateOrUpdateRecord adds a record to Digit
 func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) error {
 	ip, err := getIP()
-
 	if err != nil {
 		return err
 	}
 
-	dnsEditRequest := godo.DomainRecordEditRequest{
-		Type: "A",
-		Name: config.DNSConfig.Name,
-		Data: ip,
-		TTL:  config.DNSConfig.TTL,
+	editRequest, err := makeEditRequest(*config, ip)
+	if err != nil {
+		return err
 	}
+
 	requestContext := context.Background()
 	if config.DNSConfig.ID == nil {
-		record, _, err := domainService.CreateRecord(requestContext, config.DNSConfig.Domain, &dnsEditRequest)
+		_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
 		if err != nil {
 			return err
 		}
-		config.DNSConfig.ID = &record.ID
-		err = config.Write()
 
-		if err != nil {
-			return err
-		}
 		fmt.Printf("Succuessfuly set the '%s' record to point to '%s'",
 			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 			aurora.Cyan(aurora.Bold(ip)))
 	} else {
-		record, _, err := domainService.Record(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID)
-		if err != nil {
+		record, res, err := domainService.Record(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID)
+		if res.StatusCode == 404 {
+			_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf("Succuessfuly set the '%s' record to point to '%s'",
+				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+				aurora.Cyan(aurora.Bold(ip)))
+		} else if err != nil {
 			return err
 		} else if record.Data != ip {
-			_, _, err := domainService.EditRecord(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID, &dnsEditRequest)
+			_, _, err := UpdateRecord(requestContext, config, &editRequest, domainService)
 			if err != nil {
 				return err
 			}
@@ -178,10 +180,14 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) err
 			fmt.Printf("Succuessfuly updated the '%s' record to point to '%s'",
 				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 				aurora.Cyan(aurora.Bold(ip)))
-		} else {
+		} else if res.StatusCode == 200 {
 			fmt.Printf("The '%s' record already points to '%s'",
 				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 				aurora.Cyan(aurora.Bold(ip)))
+		} else {
+			fmt.Printf(aurora.Sprintf(aurora.Red("There was an unknown error setting the '%s' record to '%s'"),
+				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+				aurora.Cyan(aurora.Bold(ip))))
 		}
 	}
 
