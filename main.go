@@ -112,17 +112,19 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 	}
 
 	record, res, err := domainService.Record(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID)
-	if res.StatusCode == 404 {
-		_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
-		if err != nil {
-			return DNSResult{}, err
+	if err != nil {
+		if res.StatusCode == 404 {
+			_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
+			if err != nil {
+				return DNSResult{}, err
+			}
+
+			return DNSResult{
+				IP:         ip,
+				StatusCode: StatusIPSet,
+			}, nil
 		}
 
-		return DNSResult{
-			IP:         ip,
-			StatusCode: StatusIPSet,
-		}, nil
-	} else if err != nil {
 		return DNSResult{}, err
 	} else if record.Data != ip {
 		_, _, err := UpdateRecord(requestContext, config, &editRequest, domainService)
@@ -139,11 +141,11 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 			IP:         ip,
 			StatusCode: StatusIPAlreadySet,
 		}, nil
-	} else {
-		return DNSResult{}, fmt.Errorf("There was an unknown error in setting the '%s' record to '%s",
-			config.DNSConfig.Name,
-			ip)
 	}
+
+	return DNSResult{}, fmt.Errorf("There was an unknown error in setting the '%s' record to '%s",
+		config.DNSConfig.Name,
+		ip)
 }
 
 func main() {
