@@ -129,6 +129,7 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 		if err != nil {
 			return DNSResult{}, err
 		}
+
 		return DNSResult{
 			IP:         ip,
 			StatusCode: StatusIPUpdated,
@@ -157,7 +158,6 @@ func main() {
 	oauthClient := oauth2.NewClient(context.Background(), config)
 	digitalOceanClient := godo.NewClient(oauthClient)
 	result, err := CreateOrUpdateRecord(&config, digitalOceanClient.Domains)
-
 	if err != nil {
 		log.Fatal(err)
 	}
