@@ -83,64 +83,69 @@ func UpdateRecord(context context.Context, config *Config, editRequest *godo.Dom
 }
 
 //CreateOrUpdateRecord adds a record to DigitalOcean if it does not already exist, and updates it otherwise.
-func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) error {
+func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DNSResult, error) {
 	ip, err := getIP()
 	if err != nil {
-		return err
+		return ResultError, err
 	}
 
 	editRequest, err := makeEditRequest(*config, ip)
 	if err != nil {
-		return err
+		return ResultError, err
 	}
 
 	requestContext := context.Background()
 	if config.DNSConfig.ID == nil {
 		_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
 		if err != nil {
-			return err
+			return ResultError, err
 		}
 
 		log.Printf("Succuessfuly set the '%s' record to point to '%s'",
 			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
 			aurora.Cyan(aurora.Bold(ip)))
-	} else {
-		record, res, err := domainService.Record(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID)
-		if res.StatusCode == 404 {
-			_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
-			if err != nil {
-				return err
-			}
 
-			log.Printf("Succuessfuly set the '%s' record to point to '%s'",
-				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-				aurora.Cyan(aurora.Bold(ip)))
-		} else if err != nil {
-			return err
-		} else if record.Data != ip {
-			_, _, err := UpdateRecord(requestContext, config, &editRequest, domainService)
-			if err != nil {
-				return err
-			}
-
-			log.Printf("Succuessfuly updated the '%s' record to point to '%s'",
-				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-				aurora.Cyan(aurora.Bold(ip)))
-		} else if res.StatusCode == 200 {
-			log.Printf("The '%s' record already points to '%s'",
-				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-				aurora.Cyan(aurora.Bold(ip)))
-		} else {
-			log.Printf(aurora.Sprintf(aurora.Red("There was an unknown error setting the '%s' record to '%s'"),
-				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-				aurora.Cyan(aurora.Bold(ip))))
-			return fmt.Errorf("There was an unknown error in setting the '%s' record to '%s",
-				config.DNSConfig.Name,
-				ip)
-		}
+		return ResultIPSet, nil
 	}
 
-	return nil
+	record, res, err := domainService.Record(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID)
+	if res.StatusCode == 404 {
+		_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
+		if err != nil {
+			return ResultError, err
+		}
+
+		log.Printf("Succuessfuly set the '%s' record to point to '%s'",
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip)))
+
+		return ResultIPSet, nil
+	} else if err != nil {
+		return ResultError, err
+	} else if record.Data != ip {
+		_, _, err := UpdateRecord(requestContext, config, &editRequest, domainService)
+		if err != nil {
+			return ResultError, err
+		}
+
+		log.Printf("Succuessfuly updated the '%s' record to point to '%s'",
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip)))
+
+		return ResultIPUpdated, nil
+	} else if res.StatusCode == 200 {
+		log.Printf("The '%s' record already points to '%s'",
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip)))
+		return ResultIPAlreadySet, nil
+	} else {
+		log.Printf(aurora.Sprintf(aurora.Red("There was an unknown error setting the '%s' record to '%s'"),
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip))))
+		return ResultUnknownError, fmt.Errorf("There was an unknown error in setting the '%s' record to '%s",
+			config.DNSConfig.Name,
+			ip)
+	}
 }
 
 func main() {
@@ -154,7 +159,7 @@ func main() {
 
 	oauthClient := oauth2.NewClient(context.Background(), config)
 	digitalOceanClient := godo.NewClient(oauthClient)
-	err = CreateOrUpdateRecord(&config, digitalOceanClient.Domains)
+	result, err := CreateOrUpdateRecord(&config, digitalOceanClient.Domains)
 
 	if err != nil {
 		log.Fatal(err)
