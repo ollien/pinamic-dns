@@ -32,8 +32,6 @@ const (
 	StatusIPSet DNSStatusCode = iota
 	StatusIPUpdated
 	StatusIPAlreadySet
-	StatusError
-	StatusErrorUnknown
 )
 
 func getIP() (string, error) {
