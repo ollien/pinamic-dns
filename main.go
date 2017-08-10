@@ -87,22 +87,22 @@ func UpdateRecord(context context.Context, config *Config, editRequest *godo.Dom
 }
 
 //CreateOrUpdateRecord adds a record to DigitalOcean if it does not already exist, and updates it otherwise.
-func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DNSStatusCode, error) {
+func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DNSResult, error) {
 	ip, err := getIP()
 	if err != nil {
-		return ResultError, err
+		return DNSResult{}, err
 	}
 
 	editRequest, err := makeEditRequest(*config, ip)
 	if err != nil {
-		return ResultError, err
+		return DNSResult{}, err
 	}
 
 	requestContext := context.Background()
 	if config.DNSConfig.ID == nil {
 		_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
 		if err != nil {
-			return ResultError, err
+			return DNSResult{}, err
 		}
 
 		return ResultIPSet, nil
@@ -112,21 +112,21 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 	if res.StatusCode == 404 {
 		_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
 		if err != nil {
-			return ResultError, err
+			return DNSResult{}, err
 		}
 		return ResultIPSet, nil
 	} else if err != nil {
-		return ResultError, err
+		return DNSResult{}, err
 	} else if record.Data != ip {
 		_, _, err := UpdateRecord(requestContext, config, &editRequest, domainService)
 		if err != nil {
-			return ResultError, err
+			return DNSResult{}, err
 		}
 		return ResultIPUpdated, nil
 	} else if res.StatusCode == 200 {
 		return ResultIPAlreadySet, nil
 	} else {
-		return ResultUnknownError, fmt.Errorf("There was an unknown error in setting the '%s' record to '%s",
+		return DNSResult{}, fmt.Errorf("There was an unknown error in setting the '%s' record to '%s",
 			config.DNSConfig.Name,
 			ip)
 	}
