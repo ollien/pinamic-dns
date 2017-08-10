@@ -113,6 +113,7 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 
 	record, res, err := domainService.Record(requestContext, config.DNSConfig.Domain, *config.DNSConfig.ID)
 	if err != nil {
+		//If there is a 404, this means that the id within config.json does not exist on the DigitalOcean servers. More often than not, this will mean that the record has been deleted. As such, we can recreate the record without issue.
 		if res.StatusCode == 404 {
 			_, _, err := CreateRecord(requestContext, config, &editRequest, domainService)
 			if err != nil {
@@ -126,7 +127,9 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 		}
 
 		return DNSResult{}, err
-	} else if record.Data != ip {
+	}
+
+	if record.Data != ip {
 		_, _, err := UpdateRecord(requestContext, config, &editRequest, domainService)
 		if err != nil {
 			return DNSResult{}, err
@@ -137,6 +140,7 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 			StatusCode: StatusIPUpdated,
 		}, nil
 	} else if res.StatusCode == 200 {
+		//If record.Data does not equal the IP, and there was a 200 result, we can assume that the IP is already set and there are no further problems.
 		return DNSResult{
 			IP:         ip,
 			StatusCode: StatusIPAlreadySet,
