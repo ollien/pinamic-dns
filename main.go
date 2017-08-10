@@ -18,16 +18,22 @@ import (
 
 const defaultConfigPath = "./config.json"
 
-//DNSResult represents the result of running CreateOrUpdateRecord.
-type DNSResult int
+//DNSStatusCode represents the result of what CreateOrUpdateRecord did.
+type DNSStatusCode int
+
+//DNSResult represents the result of running CreateOrUpdateRecord, including information of its run.
+type DNSResult struct {
+	IP         string
+	StatusCode DNSStatusCode
+}
 
 //Possible results for DNSResult
 const (
-	ResultIPSet DNSResult = iota
-	ResultIPUpdated
-	ResultIPAlreadySet
-	ResultError
-	ResultUnknownError
+	StatusIPSet DNSStatusCode = iota
+	StatusIPUpdated
+	StatusIPAlreadySet
+	StatusError
+	StatusErrorUnknown
 )
 
 func getIP() (string, error) {
@@ -83,7 +89,7 @@ func UpdateRecord(context context.Context, config *Config, editRequest *godo.Dom
 }
 
 //CreateOrUpdateRecord adds a record to DigitalOcean if it does not already exist, and updates it otherwise.
-func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DNSResult, error) {
+func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DNSStatusCode, error) {
 	ip, err := getIP()
 	if err != nil {
 		return ResultError, err
