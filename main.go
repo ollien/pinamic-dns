@@ -147,9 +147,10 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 		}, nil
 	}
 
-	return DNSResult{}, fmt.Errorf("There was an unknown error in setting the '%s' record to '%s",
+	return DNSResult{}, fmt.Errorf("There was an unknown error in setting the '%s' record to '%s'. Query returned status code %d",
 		config.DNSConfig.Name,
-		ip)
+		ip,
+		res.StatusCode)
 }
 
 func main() {
