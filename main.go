@@ -18,6 +18,18 @@ import (
 
 const defaultConfigPath = "./config.json"
 
+//DNSResult represents the result of running CreateOrUpdateRecord.
+type DNSResult int
+
+//Possible results for DNSResult
+const (
+	ResultIPSet DNSResult = iota
+	ResultIPUpdated
+	ResultIPAlreadySet
+	ResultError
+	ResultUnknownError
+)
+
 func getIP() (string, error) {
 	res, err := http.Get("http://checkip.amazonaws.com/")
 
