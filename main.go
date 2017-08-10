@@ -101,10 +101,6 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 			return ResultError, err
 		}
 
-		log.Printf("Succuessfuly set the '%s' record to point to '%s'",
-			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-			aurora.Cyan(aurora.Bold(ip)))
-
 		return ResultIPSet, nil
 	}
 
@@ -114,11 +110,6 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 		if err != nil {
 			return ResultError, err
 		}
-
-		log.Printf("Succuessfuly set the '%s' record to point to '%s'",
-			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-			aurora.Cyan(aurora.Bold(ip)))
-
 		return ResultIPSet, nil
 	} else if err != nil {
 		return ResultError, err
@@ -127,21 +118,10 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 		if err != nil {
 			return ResultError, err
 		}
-
-		log.Printf("Succuessfuly updated the '%s' record to point to '%s'",
-			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-			aurora.Cyan(aurora.Bold(ip)))
-
 		return ResultIPUpdated, nil
 	} else if res.StatusCode == 200 {
-		log.Printf("The '%s' record already points to '%s'",
-			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-			aurora.Cyan(aurora.Bold(ip)))
 		return ResultIPAlreadySet, nil
 	} else {
-		log.Printf(aurora.Sprintf(aurora.Red("There was an unknown error setting the '%s' record to '%s'"),
-			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-			aurora.Cyan(aurora.Bold(ip))))
 		return ResultUnknownError, fmt.Errorf("There was an unknown error in setting the '%s' record to '%s",
 			config.DNSConfig.Name,
 			ip)
@@ -163,5 +143,25 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	switch result {
+	case ResultIPSet:
+		log.Printf("Succuessfuly set the '%s' record to point to '%s'",
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip)))
+	case ResultIPUpdated:
+		log.Printf("Succuessfuly updated the '%s' record to point to '%s'",
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip)))
+	case ResultIPAlreadySet:
+		log.Printf("The '%s' record already points to '%s'",
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip)))
+	case ResultUnknownError:
+		log.Printf(aurora.Sprintf(aurora.Red("There was an unknown error setting the '%s' record to '%s'"),
+			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+			aurora.Cyan(aurora.Bold(ip))))
+
 	}
 }
