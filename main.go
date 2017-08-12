@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/digitalocean/godo"
 	"github.com/logrusorgru/aurora"
+	"github.com/ogier/pflag"
 
 	"golang.org/x/oauth2"
 )
@@ -154,9 +154,9 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 }
 
 func main() {
-	configPath := flag.String("-config", defaultConfigPath, "Set a path to a config.json")
-	silent := flag.Bool("-silent", false, "Disable all output to stdout")
-	flag.Parse()
+	configPath := pflag.String("config", defaultConfigPath, "Set a path to a config.json")
+	silent := pflag.Bool("silent", false, "Disable all output to stdout")
+	pflag.Parse()
 
 	config, err := NewConfig(*configPath)
 	if err != nil {
