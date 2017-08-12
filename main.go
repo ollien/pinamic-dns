@@ -155,6 +155,7 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 
 func main() {
 	configPath := flag.String("-config", defaultConfigPath, "Set a path to a config.json")
+	silent := flag.Bool("-silent", false, "Disable all output to stdout")
 	flag.Parse()
 
 	config, err := NewConfig(*configPath)
@@ -169,18 +170,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	switch result.StatusCode {
-	case StatusIPSet:
-		log.Printf("Succuessfuly set the '%s' record to point to '%s'",
-			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-			aurora.Cyan(aurora.Bold(result.IP)))
-	case StatusIPUpdated:
-		log.Printf("Succuessfuly updated the '%s' record to point to '%s'",
-			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-			aurora.Cyan(aurora.Bold(result.IP)))
-	case StatusIPAlreadySet:
-		log.Printf("The '%s' record already points to '%s'",
-			aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-			aurora.Cyan(aurora.Bold(result.IP)))
+	if !*silent {
+		switch result.StatusCode {
+		case StatusIPSet:
+			log.Printf("Succuessfuly set the '%s' record to point to '%s'",
+				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+				aurora.Cyan(aurora.Bold(result.IP)))
+		case StatusIPUpdated:
+			log.Printf("Succuessfuly updated the '%s' record to point to '%s'",
+				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+				aurora.Cyan(aurora.Bold(result.IP)))
+		case StatusIPAlreadySet:
+			log.Printf("The '%s' record already points to '%s'",
+				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
+				aurora.Cyan(aurora.Bold(result.IP)))
+		}
 	}
 }
