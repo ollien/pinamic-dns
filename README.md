@@ -14,3 +14,11 @@ Run the binary (whether in a shell or a cron job) in the same directory as a `co
 	}
 }
 ```
+
+## Command Flags
+
+|Flag         |Decription                                                           |
+|-------------|---------------------------------------------------------------------|
+|--config, -c |Set a path to a `config.json`, if not `./config.json`                |
+|--logfile, -l|Redirect output to a logfile                                         |
+|--silent     |Disable all output to stdout. Errors will still be reported to stderr|
