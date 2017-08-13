@@ -155,7 +155,7 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 
 func main() {
 	configPath := pflag.StringP("config", "c", defaultConfigPath, "Set a path to a config.json")
-	silent := pflag.Bool("silent", false, "Disable all output to stdout")
+	silent := pflag.Bool("silent", false, "Disable all output to stdout. Errors will still be reported to stderr.")
 	pflag.Parse()
 
 	config, err := NewConfig(*configPath)
