@@ -164,7 +164,7 @@ func main() {
 	//In order to avoid shadowing errors when assinging something to logFile, we must declare err now.
 	var err error
 	if len(*logFilePath) > 0 {
-		logFile, err = os.OpenFile(*logFilePath, os.O_WRONLY|os.O_CREATE, 0644)
+		logFile, err = os.OpenFile(*logFilePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
