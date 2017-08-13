@@ -188,6 +188,7 @@ func main() {
 	var writer io.Writer
 	fullySilent := false
 
+	//Set the writer for the log based on the flags provided
 	if *silent && logFile != nil {
 		writer = logFile
 	} else if !*silent && logFile != nil {
