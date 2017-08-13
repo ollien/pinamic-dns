@@ -203,17 +203,12 @@ func main() {
 	if !fullySilent {
 		switch result.StatusCode {
 		case StatusIPSet:
-			log.Printf("Succuessfuly set the '%s' record to point to '%s'",
-				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-				aurora.Cyan(aurora.Bold(result.IP)))
+			log.Printf("Succuessfuly set the '%s' record to point to '%s'", config.DNSConfig.Name, result.IP)
 		case StatusIPUpdated:
-			log.Printf("Succuessfuly updated the '%s' record to point to '%s'",
-				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-				aurora.Cyan(aurora.Bold(result.IP)))
+			log.Printf("Succuessfuly updated the '%s' record to point to '%s'", config.DNSConfig.Name, result.IP)
 		case StatusIPAlreadySet:
-			log.Printf("The '%s' record already points to '%s'",
-				aurora.Cyan(aurora.Bold(config.DNSConfig.Name)),
-				aurora.Cyan(aurora.Bold(result.IP)))
+			log.Printf("The '%s' record already points to '%s'", config.DNSConfig.Name, result.IP)
 		}
 	}
+
 }
