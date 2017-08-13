@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/digitalocean/godo"
-	"github.com/logrusorgru/aurora"
 	"github.com/ogier/pflag"
 
 	"golang.org/x/oauth2"
@@ -156,7 +157,21 @@ func CreateOrUpdateRecord(config *Config, domainService godo.DomainsService) (DN
 func main() {
 	configPath := pflag.StringP("config", "c", defaultConfigPath, "Set a path to a config.json")
 	silent := pflag.Bool("silent", false, "Disable all output to stdout. Errors will still be reported to stderr.")
+	logFilePath := pflag.StringP("logfile", "l", "", "Redirect output to a log file.")
 	pflag.Parse()
+
+	var logFile *os.File
+	//In order to avoid shadowing errors when assinging something to logFile, we must declare err now.
+	var err error
+	if len(*logFilePath) > 0 {
+		logFile, err = os.OpenFile(*logFilePath, os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer logFile.Close()
+		//Set the log file for any errors that may occur before we log results.
+	}
 
 	config, err := NewConfig(*configPath)
 	if err != nil {
@@ -170,7 +185,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if !*silent {
+	var writer io.Writer
+	fullySilent := false
+
+	if *silent && logFile != nil {
+		writer = logFile
+	} else if !*silent && logFile != nil {
+		writer = io.MultiWriter(os.Stdout, logFile)
+	} else if !*silent && logFile == nil {
+		writer = os.Stdout
+	} else {
+		fullySilent = true
+	}
+
+	log.SetOutput(writer)
+
+	if !fullySilent {
 		switch result.StatusCode {
 		case StatusIPSet:
 			log.Printf("Succuessfuly set the '%s' record to point to '%s'",
