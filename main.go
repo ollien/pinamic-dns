@@ -170,7 +170,10 @@ func main() {
 		}
 
 		defer logFile.Close()
+
 		//Set the log file for any errors that may occur before we log results.
+		writer := io.MultiWriter(os.Stderr, logFile)
+		log.SetOutput(writer)
 	}
 
 	config, err := NewConfig(*configPath)
