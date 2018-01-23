@@ -7,6 +7,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const defaultConfigPath = "./config.json"
+
 //Config holds the configuration for the application
 //Implements oauth2.TokenSource
 type Config struct {

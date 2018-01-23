@@ -17,8 +17,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const defaultConfigPath = "./config.json"
-
 //DNSStatusCode represents the result of what CreateOrUpdateRecord did.
 type DNSStatusCode int
 
