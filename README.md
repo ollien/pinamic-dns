@@ -1,5 +1,5 @@
 # Pinamic DNS
-Dynamic DNS for your Raspberry Pi (though it doesn't have to be!). Running the binary updates a DNS record on DigitalOcean. 
+Dynamic DNS for your Raspberry Pi (though it doesn't have to be!). Running the binary updates a DNS record on DigitalOcean.
 
 ## Installation
 Run the binary (whether in a shell or a cron job) in the same directory as a `config.json`. The `config.json` must contain the following values.
@@ -21,4 +21,3 @@ Run the binary (whether in a shell or a cron job) in the same directory as a `co
 |-------------|---------------------------------------------------------------------|
 |--config, -c |Set a path to a `config.json`, if not `./config.json`                |
 |--logfile, -l|Redirect output to a logfile                                         |
-|--silent     |Disable all output to stdout. Errors will still be reported to stderr|
