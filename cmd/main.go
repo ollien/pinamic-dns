@@ -29,6 +29,7 @@ const (
 	StatusIPAlreadySet
 )
 
+// Get the current external IP address
 func getIP() (net.IP, error) {
 	res, err := http.Get("http://checkip.amazonaws.com/")
 
